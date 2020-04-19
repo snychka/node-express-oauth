@@ -1,10 +1,13 @@
 const url = require("url")
+const fs = require("fs")
 const express = require("express")
 const bodyParser = require("body-parser")
-const { randomString, containsAll } = require("./utils")
+const jwt = require("jsonwebtoken")
+const { randomString, containsAll, decodeAuthCredentials } = require("./utils")
 
 const config = {
 	port: 9001,
+	privateKey: fs.readFileSync("assets/private_key.pem"),
 
 	clientId: "my-client",
 	clientSecret: "zETqHgl0d7ThysUqPnaFuLOmG1E=",
@@ -74,27 +77,69 @@ app.post("/approve", (req, res) => {
 		return
 	}
 
-	const userReq = requests[requestId]
+	const clientReq = requests[requestId]
 	delete requests[requestId]
-	if (!userReq) {
+	if (!clientReq) {
 		res.status(401).send("Error: invalid user request")
 		return
 	}
 
-	if (userReq.response_type !== "code") {
+	if (clientReq.response_type !== "code") {
 		res.status(400).send("Error: unsupported response type")
 		return
 	}
 	const code = randomString()
-	authorizationCodes[code] = userReq
+	authorizationCodes[code] = { clientReq, userName }
 
-	const redirectUri = url.parse(userReq.redirect_uri)
+	const redirectUri = url.parse(clientReq.redirect_uri)
 	redirectUri.query = {
 		code,
-		state: userReq.state,
+		state: clientReq.state,
 	}
 
 	res.redirect(url.format(redirectUri))
+})
+
+app.post("/token", (req, res) => {
+	let authCredentials = req.headers.authorization
+	if (!authCredentials) {
+		res.status(401).send("Error: not authorized")
+		return
+	}
+	const { clientId, clientSecret } = decodeAuthCredentials(authCredentials)
+	const client = clients[clientId]
+	if (!client || client.clientSecret !== clientSecret) {
+		res.status(401).send("Error: client not authorized")
+		return
+	}
+
+	const code = req.body.code
+	if (!code || !authorizationCodes[code]) {
+		res.status(401).send("Error: invalid code")
+		return
+	}
+
+	const { clientReq, userName } = authorizationCodes[code]
+	delete authorizationCodes[code]
+
+	const token = jwt.sign(
+		{
+			userName,
+			scope: clientReq.scope,
+		},
+		config.privateKey,
+		{
+			algorithm: "RS256",
+			expiresIn: 300,
+			issuer: "http://localhost:" + config.port,
+		}
+	)
+
+	res.json({
+		access_token: token,
+		token_type: "Bearer",
+		scope: clientReq.scope,
+	})
 })
 
 const server = app.listen(config.port, "localhost", function () {

@@ -1,4 +1,5 @@
 const crypto = require("crypto")
+const querystring = require("querystring")
 
 function randomString() {
 	const randomBytes = crypto.randomBytes(20)
@@ -19,7 +20,17 @@ function containsAll(arr1, arr2) {
 	return true
 }
 
+function decodeAuthCredentials(auth) {
+	var clientCredentials = Buffer.from(auth.slice("basic ".length), "base64")
+		.toString()
+		.split(":")
+	var clientId = querystring.unescape(clientCredentials[0])
+	var clientSecret = querystring.unescape(clientCredentials[1])
+	return { clientId, clientSecret }
+}
+
 module.exports = {
 	randomString,
 	containsAll,
+	decodeAuthCredentials,
 }
