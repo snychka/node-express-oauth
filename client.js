@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get("/authorize", (req, res) => {
 	state = randomString()
-	const redirectUrl = url.parse(config.authorizationServerAddress)
+	const redirectUrl = url.parse(config.authorizationEndpoint)
 	redirectUrl.query = {
 		response_type: "code",
 		client_id: config.clientId,
@@ -30,6 +30,11 @@ app.get("/authorize", (req, res) => {
 		state: state,
 	}
 	res.redirect(url.format(redirectUrl))
+})
+
+app.get("/callback", (req, res) => {
+	console.log("received callback:", req.query)
+	red.end()
 })
 
 const server = app.listen(config.port, "localhost", function () {
