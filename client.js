@@ -13,6 +13,7 @@ const config = {
 
 	authorizationEndpoint: "http://localhost:9001/authorize",
 	tokenEndpoint: "http://localhost:9001/token",
+	userInfoEndpoint: "http://localhost:9002/user-info",
 }
 let state = ""
 
@@ -53,14 +54,24 @@ app.get("/callback", (req, res) => {
 		data: {
 			code,
 		},
-	}).then((response) => {
-		if (response.status !== 200) {
-			res.status(500).send("Error: something went wrong")
-			return
-		}
-
-		res.render("welcome", { token: response.data.access_token })
 	})
+		.then((response) => {
+			if (response.status !== 200) {
+				res.status(500).send("Error: something went wrong")
+				return
+			}
+
+			return axios({
+				method: "GET",
+				url: config.userInfoEndpoint,
+				headers: {
+					authorization: "bearer " + response.data.access_token,
+				},
+			})
+		})
+		.then((response) => {
+			res.render("welcome", { token: JSON.stringify(response.data) })
+		})
 })
 
 const server = app.listen(config.port, "localhost", function () {
