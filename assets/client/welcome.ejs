@@ -3,10 +3,9 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
+		<title>Welcome <%= user.name %></title>
 	</head>
 	<body>
-		<p>Token: <%- token %></p>
-		<p>Welcome</p>
+		<p>Welcome <%= user.name %>! Your date of birth is: <%= user.dob %></p>
 	</body>
 </html>

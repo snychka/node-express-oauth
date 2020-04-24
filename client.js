@@ -54,6 +54,7 @@ app.get("/callback", (req, res) => {
 		data: {
 			code,
 		},
+		validateStatus: null,
 	})
 		.then((response) => {
 			if (response.status !== 200) {
@@ -67,10 +68,20 @@ app.get("/callback", (req, res) => {
 				headers: {
 					authorization: "bearer " + response.data.access_token,
 				},
+			}).then((response) => {
+				if (response.status !== 200) {
+					res
+						.status(403)
+						.send("Error: could not get data from protected resource")
+					return
+				}
+				console.log("got response: ", response.data)
+				res.render("welcome", { user: response.data })
 			})
 		})
-		.then((response) => {
-			res.render("welcome", { token: JSON.stringify(response.data) })
+		.catch((err) => {
+			console.error(err)
+			res.status(500).send("Error: something went wrong")
 		})
 })
 
