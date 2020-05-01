@@ -51,3 +51,7 @@ const server = app.listen(config.port, "localhost", function () {
 	var port = server.address().port
 	console.log("OAuth Client is listening at http://%s:%s", host, port)
 })
+
+// for testing purposes
+
+module.exports = { app }
