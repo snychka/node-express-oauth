@@ -17,12 +17,12 @@ const clients = {
 	"my-client": {
 		name: "Sample Client",
 		clientSecret: "zETqHgl0d7ThysUqPnaFuLOmG1E=",
-		scopes: ["name", "dob"],
+		scopes: ["permission:name", "permission:date_of_birth"],
 	},
 	"test-client": {
 		name: "Test Client",
 		clientSecret: "TestSecret",
-		scopes: ["name"],
+		scopes: ["permission:name"],
 	},
 }
 
