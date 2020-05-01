@@ -31,7 +31,7 @@ app.get("/authorize", (req, res) => {
 		client_id: config.clientId,
 		client_secret: config.clientSecret,
 		redirect_uri: config.redirectUri,
-		scope: "name dob",
+		scope: "permission:name permission:date_of_birth",
 		state: state,
 	}
 	res.redirect(url.format(redirectUrl))

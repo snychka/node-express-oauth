@@ -12,13 +12,13 @@ const users = {
 	user1: {
 		username: "user1",
 		name: "User 1",
-		dob: "7th October 1990",
+		date_of_birth: "7th October 1990",
 		weight: 57,
 	},
 	john: {
 		username: "john",
 		name: "John Appleseed",
-		dob: "12th September 1998",
+		date_of_birth: "12th September 1998",
 		weight: 87,
 	},
 }
@@ -38,7 +38,7 @@ app.get("/user-info", (req, res) => {
 	const userWithRestrictedFields = {}
 	const scope = userInfo.scope.split(" ")
 	for (let i = 0; i < scope.length; i++) {
-		const field = scope[i]
+		const field = scope[i].slice("permission:".length)
 		userWithRestrictedFields[field] = user[field]
 	}
 
