@@ -3,7 +3,12 @@ const fs = require("fs")
 const express = require("express")
 const bodyParser = require("body-parser")
 const jwt = require("jsonwebtoken")
-const { randomString, containsAll, decodeAuthCredentials } = require("./utils")
+const {
+	randomString,
+	containsAll,
+	decodeAuthCredentials,
+	timeout,
+} = require("./utils")
 
 const config = {
 	port: 9001,
@@ -42,6 +47,7 @@ let state = ""
 const app = express()
 app.set("view engine", "ejs")
 app.set("views", "assets/authorization-server")
+app.use(timeout)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -76,27 +82,23 @@ app.post("/approve", (req, res) => {
 		res.status(401).send("Error: user not authorized")
 		return
 	}
-
 	const clientReq = requests[requestId]
 	delete requests[requestId]
 	if (!clientReq) {
 		res.status(401).send("Error: invalid user request")
 		return
 	}
-
 	if (clientReq.response_type !== "code") {
 		res.status(400).send("Error: unsupported response type")
 		return
 	}
 	const code = randomString()
 	authorizationCodes[code] = { clientReq, userName }
-
 	const redirectUri = url.parse(clientReq.redirect_uri)
 	redirectUri.query = {
 		code,
 		state: clientReq.state,
 	}
-
 	res.redirect(url.format(redirectUri))
 })
 

@@ -35,9 +35,18 @@ function deleteAllKeys(obj) {
 	})
 }
 
+function timeout(req, res, next) {
+	res.setTimeout(200, function () {
+		res.status(408).end()
+	})
+
+	next()
+}
+
 module.exports = {
 	randomString,
 	containsAll,
 	decodeAuthCredentials,
 	deleteAllKeys,
+	timeout,
 }
