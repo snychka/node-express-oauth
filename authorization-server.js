@@ -150,4 +150,4 @@ const server = app.listen(config.port, "localhost", function () {
 
 // for testing purposes
 
-module.exports = { app }
+module.exports = { app, requests }

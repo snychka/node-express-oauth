@@ -29,8 +29,15 @@ function decodeAuthCredentials(auth) {
 	return { clientId, clientSecret }
 }
 
+function deleteAllKeys(obj) {
+	Object.keys(obj).forEach((k) => {
+		delete obj[k]
+	})
+}
+
 module.exports = {
 	randomString,
 	containsAll,
 	decodeAuthCredentials,
+	deleteAllKeys,
 }
