@@ -4,7 +4,7 @@ const request = require("supertest")
 const { app, authorizationCodes } = require("../../authorization-server")
 const { deleteAllKeys } = require("../../utils")
 
-it("/token should return 401 if authorization header doesn't have the correct credentials @authorization-server-check-authorization-valid", () => {
+it("/token should return 401 if code object doesn't exist in authorizationCodes @authorization-server-verify-authorization-code", () => {
 	deleteAllKeys(authorizationCodes)
 	const code = "somerandomcode"
 	authorizationCodes[code] = {

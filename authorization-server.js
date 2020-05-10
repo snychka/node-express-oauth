@@ -58,7 +58,6 @@ app.get("/authorize", (req, res) => {
 		res.status(401).send("Error: client not authorized")
 		return
 	}
-
 	if (
 		typeof req.query.scope !== "string" ||
 		!containsAll(client.scopes, req.query.scope.split(" "))
@@ -68,7 +67,6 @@ app.get("/authorize", (req, res) => {
 	}
 	const requestId = randomString()
 	requests[requestId] = req.query
-
 	res.render("login", {
 		client,
 		scope: req.query.scope,
@@ -114,16 +112,13 @@ app.post("/token", (req, res) => {
 		res.status(401).send("Error: client not authorized")
 		return
 	}
-
 	const code = req.body.code
 	if (!code || !authorizationCodes[code]) {
 		res.status(401).send("Error: invalid code")
 		return
 	}
-
 	const { clientReq, userName } = authorizationCodes[code]
 	delete authorizationCodes[code]
-
 	const token = jwt.sign(
 		{
 			userName,
@@ -136,7 +131,6 @@ app.post("/token", (req, res) => {
 			issuer: "http://localhost:" + config.port,
 		}
 	)
-
 	res.json({
 		access_token: token,
 		token_type: "Bearer",
@@ -152,4 +146,4 @@ const server = app.listen(config.port, "localhost", function () {
 
 // for testing purposes
 
-module.exports = { app, requests, authorizationCodes }
+module.exports = { app, requests, authorizationCodes, server }
