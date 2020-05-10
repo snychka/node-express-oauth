@@ -141,7 +141,7 @@ app.post("/token", (req, res) => {
 const server = app.listen(config.port, "localhost", function () {
 	var host = server.address().address
 	var port = server.address().port
-	console.log("OAuth Client is listening at http://%s:%s", host, port)
+	console.log("OAuth Server is listening at http://%s:%s", host, port)
 })
 
 // for testing purposes

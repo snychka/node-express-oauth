@@ -75,7 +75,6 @@ app.get("/callback", (req, res) => {
 						.send("Error: could not get data from protected resource")
 					return
 				}
-				console.log("got response: ", response.data)
 				res.render("welcome", { user: response.data })
 			})
 		})
