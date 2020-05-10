@@ -152,4 +152,4 @@ const server = app.listen(config.port, "localhost", function () {
 
 // for testing purposes
 
-module.exports = { app, requests }
+module.exports = { app, requests, authorizationCodes }
