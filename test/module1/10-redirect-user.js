@@ -8,7 +8,7 @@ const {
 } = require("../../authorization-server")
 const { deleteAllKeys } = require("../../utils")
 
-it("/approve route stores the request in authorizationCodes @authorization-server-approve-store-request", () => {
+it("/approve route redirects the user on success @authorization-server-approve-redirect-user", () => {
 	deleteAllKeys(requests)
 	deleteAllKeys(authorizationCodes)
 
