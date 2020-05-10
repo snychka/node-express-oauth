@@ -4,7 +4,7 @@ const request = require("supertest")
 const { app, requests } = require("../../authorization-server")
 const { deleteAllKeys } = require("../../utils")
 
-it("/approve route verifies the userName and password credentials @authorization-server-verify-username-password", () => {
+it("/approve route verifies the existence of a valid request @authorization-server-verify-request-existence", () => {
 	deleteAllKeys(requests)
 	const requestId = "asdf4567"
 	const state = "yuiop67890"
@@ -24,12 +24,18 @@ it("/approve route verifies the userName and password credentials @authorization
 			assert.equal(
 				[200, 302, 408].indexOf(res.status) >= 0,
 				true,
-				"The /approve route should return a 200 status for the correct username and password"
+				"The /approve route should return a 200 status for the correct credentials"
+			)
+
+			assert.equal(
+				requests[requestId],
+				null,
+				"The request with the given requestId should be deleted from the requests object after verifying existence"
 			)
 
 			return request(app).post("/approve").send({
-				userName: "random",
-				password: "hacker",
+				userName: "john",
+				password: "appleseed",
 				requestId,
 			})
 		})
@@ -37,7 +43,7 @@ it("/approve route verifies the userName and password credentials @authorization
 			assert.equal(
 				res.status,
 				401,
-				"The /approve route should return a 401 status if the userName and password are invalid"
+				"The /approve route should return a 401 status for an invalid requestId"
 			)
 		})
 })
