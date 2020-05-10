@@ -1,6 +1,13 @@
 const fs = require("fs")
 const express = require("express")
 const bodyParser = require("body-parser")
+const jwt = require("jsonwebtoken")
+const {
+	randomString,
+	containsAll,
+	decodeAuthCredentials,
+	timeout,
+} = require("./utils")
 
 const config = {
 	port: 9001,
@@ -39,6 +46,7 @@ let state = ""
 const app = express()
 app.set("view engine", "ejs")
 app.set("views", "assets/authorization-server")
+app.use(timeout)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -49,9 +57,9 @@ Your code here
 const server = app.listen(config.port, "localhost", function () {
 	var host = server.address().address
 	var port = server.address().port
-	console.log("OAuth Client is listening at http://%s:%s", host, port)
+	console.log("OAuth Server is listening at http://%s:%s", host, port)
 })
 
 // for testing purposes
 
-module.exports = { app, requests }
+module.exports = { app, requests, authorizationCodes, server }
