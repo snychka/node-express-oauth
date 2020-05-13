@@ -3,15 +3,15 @@ const request = require("supertest")
 
 const { app } = require("../../authorization-server")
 
-it("serves an empty authorize route @authorization-server-verify-client-id", () => {
+it("returns a 200 for a valid client ID @authorization-server-verify-client-id", () => {
 	return request(app)
-		.get("/authorize?client_id=my-client")
+		.get("/authorize?client_id=my-client&scope=permission:name")
 		.then((res) => {
 			assert.notEqual(res.status, 404, "The `/authorize` route doesn't exist")
-			assert.equal(
+			assert.notEqual(
 				res.status,
-				200,
-				"The `/authorize` route should return a 200 status if the client ID is valid"
+				401,
+				"The `/authorize` route should not return a 401 status if the client ID is valid"
 			)
 
 			return request(app).get("/authorize?client_id=fake-client")

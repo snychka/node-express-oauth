@@ -29,8 +29,24 @@ function decodeAuthCredentials(auth) {
 	return { clientId, clientSecret }
 }
 
+function deleteAllKeys(obj) {
+	Object.keys(obj).forEach((k) => {
+		delete obj[k]
+	})
+}
+
+function timeout(req, res, next) {
+	res.setTimeout(200, function () {
+		res.status(408).end()
+	})
+
+	next()
+}
+
 module.exports = {
 	randomString,
 	containsAll,
 	decodeAuthCredentials,
+	deleteAllKeys,
+	timeout,
 }

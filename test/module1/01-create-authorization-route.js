@@ -1,17 +1,16 @@
 const assert = require("assert")
 const request = require("supertest")
 
-const { app } = require("../../authorization-server")
+const { app, server } = require("../../authorization-server")
 
 it("serves an empty authorize route @authorization-server-create-authorize-route", () => {
 	return request(app)
 		.get("/authorize")
 		.then((res) => {
 			assert.notEqual(res.status, 404, "The `/authorize` route doesn't exist")
-			assert.equal(
-				res.status,
-				200,
-				"The `/authorize` route should return a 200 status by default"
-			)
 		})
+})
+
+afterEach(() => {
+	server.close()
 })
