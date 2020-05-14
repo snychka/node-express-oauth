@@ -33,5 +33,4 @@ Your code here
 const server = app.listen(config.port, "localhost", function () {
 	var host = server.address().address
 	var port = server.address().port
-	console.log("OAuth Resource is listening at http://%s:%s", host, port)
 })
