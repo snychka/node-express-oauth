@@ -63,9 +63,20 @@ function getUserInfoFromAccessToken(req) {
 		return null
 	}
 
-	const userInfo = jwt.verify(authToken, config.publicKey, {
-		algorithms: ["RS256"],
-	})
+	let userInfo = null
+
+	try {
+		userInfo = jwt.verify(authToken, config.publicKey, {
+			algorithms: ["RS256"],
+		})
+	} catch (e) {
+		return null
+	}
 
 	return userInfo
+}
+
+module.exports = {
+	app,
+	server,
 }
