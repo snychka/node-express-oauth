@@ -2,6 +2,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const jwt = require("jsonwebtoken")
 const fs = require("fs")
+const { timeout } = require("./utils")
 
 const config = {
 	port: 9002,
@@ -24,6 +25,7 @@ const users = {
 }
 
 const app = express()
+app.use(timeout)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
