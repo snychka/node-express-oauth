@@ -3,7 +3,7 @@ const request = require("supertest")
 
 const { app, server } = require("../../protected-resource")
 
-it("verifies existence of authorization token @protected-resource-verify-auh-token-existence", () => {
+it("verifies existence of authorization token @protected-resource-verify-auth-token-existence", () => {
 	return request(app)
 		.get("/user-info")
 		.set(
