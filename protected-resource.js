@@ -34,3 +34,8 @@ const server = app.listen(config.port, "localhost", function () {
 	var host = server.address().address
 	var port = server.address().port
 })
+
+module.exports = {
+	app,
+	server,
+}

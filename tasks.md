@@ -15,3 +15,32 @@
 13. **Verifying the authorization header** - Each authorization header is encoded with the standard basic auth algorithm. A helper function `decodeAuthCredentials` is present in the `utils.js` file, which accepts the auth token and returns and object containing `clientId` and `clientSecret` keys. We need to check if these match the client IDs and secrets stored with us. This can be found in the `clients` object at the start of the file. For example, `my-client` is a client ID whose client secret is `zETqHgl0d7ThysUqPnaFuLOmG1E=`. If the client ID and secret don't match, return a `401` status.
 14. **Verifying the authorization code** - The `req.body` object contains the `code` key attribute, whose value corresponds to the code we issued in the last route. We need to check if an object that matches this code exists in the `authorizationCodes` object. For example, if the `req.body.code` is `"abc"`, we need to check if `obj = authorizationCodes["abc"]` exists. If it doesn't, return a `401` status. If it exists, save the value in a local variable (for later use) and delete the key from `authorizationCodes`.
 15. **Issuing the access token** - Once all the above info has been validated, we need to create a signed token, and return it as the response. Create a new JWT using the `jwt.sign` method from the `"jsonwebtoken"` library (you can use other libraries if you prefer as well). The object we need to encode needs to contain the `"userName"` and `"scope"` keys, which can be obtained from the object we extracted from `authorizationCodes` in the last step (as `obj.userName` and `obj.clientReq.scope` respectively). This needs to be encoded using the `"RS256"` algorithm. The public and private keys for this can be found in the `assets` folder as `public_key.pem` and `private_key.pem`. Once we create the JWT string, respond with a `200` status and a JSON body with the following parameters: `"access_token"`, whose value is the JWT string; `"token_type"`, whose value is `"Bearer"`.
+
+## 2. Building the Protected Resource
+
+### 1. Creating the user-info route
+
+The protected resource needs to contain a route that gives out information about to the user to authorized clients. In `protected-resource.js` create a new server route that accepts `GET` requests to the `/user-info` endpoint using the `app.get` method.
+
+### 2. Ensuring the existence of the authorization token
+
+The identifying information about the user whose information is being requested will be contained in the authorization header present as `req.headers.authorization` attribute. We need to verify that this header exists, and return a `401` status incase it doesn't.
+
+### 3. Getting user information from the auth token
+
+In the previous module, we issued a JWT with an encoded object containing the `userName` and `scope` keys. We need to extract these keys from the token that comes along with the request. The authorization token is a string with the value `authToken = "bearer <your_token_payload>"`. You can extract the token payload from the string using the `authToken.slice()` method. Once you've extracted the token payload, you can use the `jwt.verify` function from the `jsonwebtoken` library to decode and return the encoded object containing the required keys. If the token verification fails, return a `401` status.
+
+Notes:
+
+-   The `jwt.verify` function takes three arguments: first, the token payload string. Second, the public key (which is present in `config.publicKey` which has been declared at the beginning of the file). Lastly, the options object, where you will have to set the `"algorithms"` key to `["RS256"]`.
+
+### 4. Return the relevant fields for the requested user
+
+In the previous task, we acquired the username and the scope. We now need to return the relevant information about the user as a JSON response, based on the scope. For example, if the `userName` is `"john"`, and the `scope` is `"permission:name permission:date_of_birth"`, our response should be `{"name": "John Appleseed", "date_of_birth":"12th September 1998"}`.
+
+Note:
+
+-   Use the `.split()` method of strings to get the scopes as an array from the space separated scopes string.
+-   The user information is declared at the beginning of the file in the `users` object. With the usernames as keys and information as an object. For example, information about the user with username `john` is present in `users["john"]`
+-   To get the field names from the permissions, use the `.slice()` method of strings to remove the `"permissions:"` prefix.
+-   Use the `res.json` method to return the object as a JSON response.
