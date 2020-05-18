@@ -20,7 +20,11 @@ it("/token should return the appropriate JWT if authorization succeeds @authoriz
 		.set("authorization", "Basic dGVzdC1jbGllbnQ6VGVzdFNlY3JldA==")
 		.send({ code })
 		.then((res) => {
-			assert.equal(res.status, 200)
+			assert.equal(
+				res.status,
+				200,
+				"/token should return a 200 status if authorization succeeds"
+			)
 			const { access_token, token_type } = res.body
 			assert.equal(
 				token_type.toLowerCase(),

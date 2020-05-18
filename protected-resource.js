@@ -1,6 +1,7 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 const fs = require("fs")
+const { timeout } = require("./utils")
 
 const config = {
 	port: 9002,
@@ -23,6 +24,7 @@ const users = {
 }
 
 const app = express()
+app.use(timeout)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -34,3 +36,8 @@ const server = app.listen(config.port, "localhost", function () {
 	var host = server.address().address
 	var port = server.address().port
 })
+
+module.exports = {
+	app,
+	server,
+}
