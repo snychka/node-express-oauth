@@ -119,7 +119,7 @@ app.post('/token', (req, res) => {
   }
 
   let {clientId, clientSecret} = decodeAuthCredentials(req.headers.authorization);
-  if(clients[clientId] !== clientSecret) {
+  if(clients[clientId].clientSecret !== clientSecret) {
     res.status(401).end();
     return;
   }
@@ -131,6 +131,14 @@ app.post('/token', (req, res) => {
   }
   let ac =authorizationCodes[req.body.code];
   delete authorizationCodes[req.body.code];
+
+  let js= jwt.sign(
+    {userName: ac.userName, scope: ac.clientReq.scope},
+    fs.readFileSync('./assets/private_key.pem'),
+    {algorithm: "RS256"}
+  );
+
+  res.status(200).json({access_token: js, token_type: 'Bearer'}).end();
 
 
 });
