@@ -44,3 +44,77 @@ Note:
 -   The user information is declared at the beginning of the file in the `users` object. With the usernames as keys and information as an object. For example, information about the user with username `john` is present in `users["john"]`
 -   To get the field names from the permissions, use the `.slice()` method of strings to remove the `"permissions:"` prefix.
 -   Use the `res.json` method to return the object as a JSON response.
+
+## 3. Building the Client Application
+
+### 1. Creating the authorization route
+
+First, we need to create the initial route that the user will hit when authorizing our application. In `client.js` create a new route that accepts `GET` requests to the `/authorize` endpoint using the `app.get()` method.
+
+### 2. Declaring the state
+
+We need to generate a random string and assign it to the `state` variable, in order to keep track and verify the authorization request.
+
+Notes:
+
+-   You can use the `randomString()` function imported from `utils.js` to generate a random string.
+-   The random string needs to be assigned to the `state` variable, which has already been declared at the top of the file.
+
+### 3. Redirecting the user to the authorization endpoint
+
+Finally, we need to return a redirect response, sending the user to the `/authorize` endpoint of the authorization server (which we completed in module 2). The redirect URL needs to contain the following query parameters:
+
+-   `response_type` which is set to `"code"`
+-   `client_id` which is set to `config.clientId`
+-   `client_secret` which is set to `config.clientSecret`
+-   `redirect_uri` which is set to `config.redirectUri`
+-   `scope` which is set to `"permission:name permission:date_of_birth"`
+-   `state` which is set to the random string that you generated in the previous task
+
+So if the authorization endpoint is `"http://example.com/authorize"`, the redirect URL should look something like: `"http://example.com/authorize?response_type=abc&client_id=def&client_secret=ghi&redirect_uri=lmn&scope=opq&state=rst"`
+
+Notes:
+
+-   The `config` object is declared near the top of the file
+-   You can use the example under the Node.js [URLSearchParams API](https://nodejs.org/api/url.html#url_class_urlsearchparams) to see the best way to add query parameters to an existing URL string.
+
+### 4. Creating the callback endpoint
+
+This is the final endpoint the user is going to hit once the authorization process is complete. In `client.js` create a new route that accepts `GET` requests to the `/callback` endpoint using the `app.get()` method.
+
+### 5. Verifying the state
+
+The incoming request will come with a state param present in `req.query.state`. We need to verify if its value matches the random string generated and sent in the previous tasks. If the value of the state sent in the request, and the value stored in the local `state` variable declared previously don't match, send a `403` (forbidden) status code, and return.
+
+### 6. Requesting for the access token
+
+Once the state is verified we need to get the access token from the authorization server. After the state verification, send an HTTP `POST` request to the token endpoint URL (which can be found in the `tokenEndpoint` attribute in `config` object declared near the top of the file)
+
+You can make use of the `axios` library to make the HTTP call. The `axios` variable is already imported at the top of the file. You can create the request by calling the `axios(requestConfig)` function. `requestConfig` here is an object containing the following parameters:
+
+-   `method` which should be set to `POST`
+-   `url` which should be set to `config.tokenEndpoint`
+-   `auth`, which is an object containing the `username` and `password` attributes, which should be set to `config.clientId` and `config.clientSecret` repectively.
+-   `data` which is an object that has a `data` attribute, whose value should be `req.query.code` (which is the authorization code that we get from the request)
+
+Note:
+
+-   The `axios(requestConfig)` function returns a javascript Promise object. The response can be accessed inside the `.then(res =>{})` method of the promise. You can find more usage examples [here](https://github.com/axios/axios#example)
+
+### 7. Requesting for user information
+
+We can now use the access token to request for the users scoped information. The response from the previous task will contain an access token in the `response.data.access_token` attribute.
+
+Create an HTTP `GET` request to the user info endpoint by using the `axios(requestConfig)` function. `requestConfig` here is an object containing the following parameters:
+
+-   `method` which should be set to `GET`
+-   `url` which should be set to `config.userInfoEndpoint`
+-   `headers`, which is an object with the `authorization` attribute, who's value should be `"bearer <access_token>"` where `<access_token>` should be replaced with the access token from the response data.
+
+Similar to the last step, the response to this request will be present in the `then()` method of the promise object.
+
+### 8. Rendering the welcome page
+
+The response to the user-info request should contain the relevant personal information of the user. We can now render the welcome page.
+
+You can render the welcome page using the `res.render(page, params)`. The `page` argument can be set to `"welcome"` which will render the `assets/client/welcome.ejs` template file. The `params` argument is needed to supply parameters to the template file. In this case `params` needs to be an object with a `user` attribute, whose value would be the data present in the user-info response, which can be accessed in the `response.data` attribute.
