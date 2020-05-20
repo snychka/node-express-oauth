@@ -78,6 +78,8 @@ function getUserInfoFromAccessToken(req) {
 	return userInfo
 }
 
+// for testing purposes
+
 module.exports = {
 	app,
 	server,

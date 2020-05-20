@@ -2,7 +2,7 @@ const url = require("url")
 const express = require("express")
 const bodyParser = require("body-parser")
 const axios = require("axios").default
-const { randomString } = require("./utils")
+const { randomString, timeout } = require("./utils")
 
 const config = {
 	port: 9000,
@@ -20,6 +20,7 @@ let state = ""
 const app = express()
 app.set("view engine", "ejs")
 app.set("views", "assets/client")
+app.use(timeout)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -42,7 +43,6 @@ app.get("/callback", (req, res) => {
 		res.status(403).send("Error: state mismatch")
 		return
 	}
-
 	const { code } = req.query
 	axios({
 		method: "POST",
@@ -61,22 +61,22 @@ app.get("/callback", (req, res) => {
 				res.status(500).send("Error: something went wrong")
 				return
 			}
-
 			return axios({
 				method: "GET",
 				url: config.userInfoEndpoint,
 				headers: {
 					authorization: "bearer " + response.data.access_token,
 				},
-			}).then((response) => {
-				if (response.status !== 200) {
-					res
-						.status(403)
-						.send("Error: could not get data from protected resource")
-					return
-				}
-				res.render("welcome", { user: response.data })
 			})
+		})
+		.then((response) => {
+			if (response.status !== 200) {
+				res.status(403).send(
+					"Error: could not get data from protected resource"
+				)
+				return
+			}
+			res.render("welcome", { user: response.data })
 		})
 		.catch((err) => {
 			console.error(err)
@@ -89,3 +89,16 @@ const server = app.listen(config.port, "localhost", function () {
 	var port = server.address().port
 	console.log("OAuth Client is listening at http://%s:%s", host, port)
 })
+
+// for testing purposes
+
+module.exports = {
+	app,
+	server,
+	getState() {
+		return state
+	},
+	setState(s) {
+		state = s
+	},
+}
