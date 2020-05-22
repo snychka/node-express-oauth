@@ -2,6 +2,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const axios = require("axios").default
 const { randomString, timeout } = require("./utils")
+const url = require('url');
 
 const config = {
 	port: 9000,
@@ -26,6 +27,51 @@ app.use(bodyParser.urlencoded({ extended: true }))
 /*
 Your code here
 */
+
+app.get('/authorize', (req, res) => {
+  state = randomString();
+  const u = new URL(config.authorizationEndpoint);
+  u.searchParams.append('response_type', 'code'); 
+  u.searchParams.append('client_id', config.clientId);
+  u.searchParams.append('client_secret', config.clientSecret);
+  u.searchParams.append('redirect_uri', config.redirectUri);
+  u.searchParams.append('scope', 'permission:name permission:date_of_birth');
+  u.searchParams.append('state', state); 
+  console.log(u.href);
+  res.redirect(u.href);
+
+  /*
+  let url = config.authorizationEndpoint + '/?' +
+    'response_type=code&' +
+    'client_id=' + encodeURIComponent(config.clientId) + '&' +
+    'client_secret=' + encodeURIComponent(config.clientSecret) + '&' +
+    'redirect_uri=' + encodeURIComponent(config.redirectUri) + '&' +
+    'scope=permission:name permission:date_of_birth&' + 
+    'state=' + encodeURIComponent(state); 
+  res.redirect(url);
+  */
+});
+
+app.get('/callback', (req, res) => {
+  if (state !== req.query.state) {
+    res.status(403).end();
+    return;
+  }
+  axios({
+    method: 'POST',
+    url: config.tokenEndpoint,
+    auth: {username: config.clientId, password: config.clientSecret},
+    data: {code: req.query.code}
+  }).then(res => {
+    return axios({
+      method: 'GET',
+      url: config.userInfoEndpoint,
+      headers: {authorization: "bear " +response.data.access_token}
+    }).then(res => {
+    });
+    
+  });
+});
 
 const server = app.listen(config.port, "localhost", function () {
 	var host = server.address().address
