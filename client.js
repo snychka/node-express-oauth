@@ -62,12 +62,13 @@ app.get('/callback', (req, res) => {
     url: config.tokenEndpoint,
     auth: {username: config.clientId, password: config.clientSecret},
     data: {code: req.query.code}
-  }).then(res => {
+  }).then(response => {
     return axios({
       method: 'GET',
       url: config.userInfoEndpoint,
-      headers: {authorization: "bear " +response.data.access_token}
-    }).then(res => {
+      headers: {authorization: "bearer " +response.data.access_token}
+    }).then(response => {
+      res.render("welcome", {user: response.data});
     });
     
   });
